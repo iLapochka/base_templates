@@ -1,0 +1,42 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        # --unsafe: syntax only, so compose tags like `!reset` parse.
+        args: [--unsafe]
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: debug-statements
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.14
+    hooks:
+      - id: ruff
+        args: [--fix, --config=code_quality/.ruff.toml]
+        files: ^src/
+      - id: ruff-format
+        args: [--config=code_quality/.ruff.toml]
+        files: ^src/
+
+  - repo: local
+    hooks:
+      # The dependency rule from the README, enforced mechanically: domain/ may not
+      # import a framework, an ORM, pydantic or core; application/ may not import a
+      # framework, an ORM or core.
+      - id: ddd-layering
+        name: DDD imports must point inward only
+        entry: uv run python scripts/check_ddd_layering.py
+        language: system
+        types: [python]
+        files: ^src/
+
+      # A spec missing from specs/INDEX.md is unfindable, and one pointing at a
+      # deleted file reads as coverage while verifying nothing.
+      - id: specs
+        name: specs are indexed and their context files exist
+        entry: uv run python scripts/check_specs.py
+        language: system
+        files: ^specs/.*\.md$

@@ -1,0 +1,116 @@
+line-length = 99
+indent-width = 4
+target-version = "py313"
+
+
+exclude = [
+    ".venv",
+    ".qodo",
+    "venv",
+    "tests/",
+    "core/",
+]
+force-exclude = true
+
+[format]
+quote-style = "single"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+skip-magic-trailing-comma = false
+
+[lint]
+select = [
+    "ANN",  # flake8-annotations
+    "E",    # pycodestyle
+    "F",    # pyflakes
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "I",    # isort
+    "TID",  # flake8-tidy-imports
+    "N",    # naming conventions
+    "S",    # flake8-bandit
+    "A",    # flake8-builtins
+    # "DJ" removed — project uses FastAPI, not Django
+    "EM",   # flake8-errmsg
+    "PIE",  # flake8-pie
+    "T20",  # flake8-print
+    "T10",  # flake8-debugger
+    "RET",  # flake8-return
+    "TCH",  # flake8-type-checking
+    "PTH",  # flake8-use-pathlib
+    "TD",   # flake8-todos
+    "ERA",  # eradicate
+    "PL",   # pylint (PLC, PLE, PLR, PLW)
+    "W",    # warnings
+    "TRY",  # tryceratops
+    "FLY",  # flynt
+    "PERF", # perflint
+    "FURB", # refurb
+    "RUF",  # ruff
+    "C90",  # mccabe
+    "C4",   # flake8-comprehensions
+    "COM",  # flake8-commas
+    "D",    # pydocstyle
+    "DTZ",  # flake8-datetimez
+    "EXE",  # flake8-executable
+    "FBT",  # flake8-boolean-trap
+    "G",    # flake8-logging-format
+    "ICN",  # flake8-import-conventions
+    "ISC",  # flake8-implicit-str-concat
+    "LOG",  # flake8-logging
+    "PT",   # flake8-pytest-style
+    "Q",    # flake8-quotes
+    "RSE",  # flake8-raise
+    "SLF",  # flake8-self
+    "SLOT", # flake8-slots
+    "YTT",  # flake8-2020
+]
+# extend-select = []
+extend-ignore = [
+    'D105',   # Missing docstring in magic method (__str__, __repr__, etc.)
+    'RUF001', # String contains ambiguous `–` (EN DASH). Did you mean `-` (HYPHEN-MINUS)?
+    'RUF003', # Comment contains ambiguous `–` (EN DASH). Did you mean `-` (HYPHEN-MINUS)?
+    'RUF012', # Mutable class attributes should be annotated with `typing.ClassVar`
+    'RET504', # Checks for variable assignments that immediately precede a return of the assigned variable.
+    'PLC0415', # `import` should be at the top-level of a file
+    'ANN401', # Any annotation
+    'ANN001', # Missing type annotation for self in method
+    'UP046', # Generic class uses `Generic` subclass instead of type parameters (PEP 695)
+    "S101", # asserts
+    "D100", # Docstring in a public module
+    "D101", # Docstring in a public class
+    "D102", # Docstring in a public method
+    "D103", # Docstring in a public method
+    "D104", # Docstring in a public package
+    "S105", # hardcoded passwords
+    "S404", # subprocess calls are for tests
+    "S603", # do not require `shell=True`
+    "S607", # partial executable paths
+    "PT012", # simple statement in pytest.raises block
+    "S106", # hardcoded assigned values
+    "D203", # blank line before class
+    "D213", # multi-line summary in docstring
+    "COM812", # comma formatting conflicts with formatter
+    "Q000", # quote style conflicts with formatter
+    "Q003", # mixed quotes conflicts with formatter
+    "PLR2004", # magic value, for status codes
+    "D106", # Docstring in a  in public nested class
+    "D107", # Docstring in init
+    "D205", # Blank line between summary line and description
+    "D401", # docstring should be in imperative mood
+    "PLE1205", # too many arguments for `logging` format string
+    "TRY301", # Abstract `raise` to an inner function
+]
+
+[lint.per-file-ignores]
+# core/ is wiring outside the hexagon — config, engine and alembic live there.
+"core/**" = ["ALL"]
+# Depends() in default args is the correct FastAPI pattern — every presentation
+# layer needs it, a context's own and the shared one alike.
+"src/*/presentation/**" = ["B008"]
+# Everything else tests need (asserts, missing docstrings, hardcoded secrets) is in extend-ignore.
+"tests/**/*.py" = [
+    "ANN",      # No type annotations required for tests
+    "PLR0913",  # Allow many function arguments
+]

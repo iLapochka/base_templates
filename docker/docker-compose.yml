@@ -1,0 +1,51 @@
+# Full stack: API + PostgreSQL. Use with `make docker`.
+name: video-helper
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: video_helper
+    # Loopback only: Docker publishes past the host firewall, and this password is the default.
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d video_helper"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    environment:
+      ENVIRONMENT: production
+      # No default: production refuses the local key, and an empty one would open every route.
+      API_KEY: ${API_KEY:?API_KEY is required, e.g. openssl rand -hex 32}
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/video_helper
+      MEDIA_DIR: /app/media
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_SECRET_KEY: ${ADMIN_SECRET_KEY:-}
+    # Loopback only: whatever serves it publicly (a reverse proxy) sits in front.
+    ports:
+      - "127.0.0.1:8000:8000"
+    # Sources and results outlive a rebuild of the container.
+    volumes:
+      - media_data:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+    # Apply migrations before serving so the schema is always up to date.
+    command: >
+      sh -c "uv run alembic upgrade head &&
+             uv run uvicorn src.main:app --host 0.0.0.0 --port 8000"
+
+volumes:
+  postgres_data:
+  media_data:

@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  # Deploy runs the same checks before it ships anything.
+  workflow_call:
+
+env:
+  API_KEY: ci-only-not-a-real-key
+  DATABASE_URL: sqlite+aiosqlite:///./ci.db
+
+jobs:
+  check:
+    # One job per tool, so each shows up on the PR as its own check.
+    name: ${{ matrix.check }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - check: mypy
+            run: uv run mypy --config-file=code_quality/mypy.ini src/
+          - check: pylint
+            run: uv run pylint --rcfile=code_quality/pylint.toml src/
+          # No ffmpeg is installed: the suite mocks the renderer port. The `integration`
+          # marker will need `apt-get install ffmpeg` here the day a real render is added.
+          - check: pytest
+            run: uv run pytest tests/ -q
+          # The layering and specs checks are fast static scripts, so they ride along with ruff.
+          - check: ruff
+            run: |
+              uv run ruff check --config=code_quality/.ruff.toml src/
+              uv run ruff format --check --config=code_quality/.ruff.toml src/
+              uv run python scripts/check_ddd_layering.py
+              uv run python scripts/check_specs.py
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          python-version: "3.13"
+      - name: Install dependencies
+        run: uv sync
+      - name: Run ${{ matrix.check }}
+        run: ${{ matrix.run }}

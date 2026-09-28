@@ -1,0 +1,20 @@
+# Secrets and local state never go into the image; the server's .env is passed at runtime.
+.env
+.env_prod
+local.db
+*.sqlite3
+.venv/
+.git/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+media/
+*.mp4
+*.mov
+*.mkv
+*.webm
+.idea/
+.vscode/
+.DS_Store

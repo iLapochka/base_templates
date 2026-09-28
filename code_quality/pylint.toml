@@ -1,0 +1,62 @@
+[tool.pylint.main]
+# Specify a score threshold under which the program will exit with error.
+fail-under = 8.0
+
+# Files or directories to be skipped.
+ignore = [".venv", "venv", "core"]
+
+# Use multiple processes to speed up Pylint.
+jobs = 0
+
+# Minimum Python version
+py-version = "3.13"
+
+# Discover python modules and packages in the file system subtree.
+recursive = true
+
+[tool.pylint."messages_control"]
+# Disable specific messages
+disable = [
+    "C0114",  # missing-module-docstring
+    "R0903",  # too-few-public-methods
+    "E1102",  # not-callable (false positive for SQLAlchemy func.now())
+    "C0411",  # wrong-import-order (handled by ruff/isort)
+    "C0412",  # ungrouped-imports (handled by ruff/isort)
+    "W0212",  # protected-access
+    "C0103",  # predefined naming style
+    "C0115",  # missing-class-docstring
+    "W1203",  # logging-fstring-interpolation
+    "C0415",  # import-outside-toplevel (lazy imports to break cycles)
+    "R0401",  # cyclic-import (entity → port → implementation → entity)
+]
+
+[tool.pylint.format]
+# Maximum number of characters on a single line.
+max-line-length = 99
+
+[tool.pylint.basic]
+# Good variable names
+good-names = ["i", "j", "k", "ex", "pk", "id", "db", "_"]
+
+[tool.pylint.design]
+# Maximum number of arguments for function / method.
+max-args = 8
+
+# An entity is a dataclass of fields; the default of 7 flags ordinary ones.
+max-attributes = 8
+
+# Maximum number of locals for function / method body.
+max-locals = 15
+
+# Maximum number of return / yield for function / method body.
+max-returns = 6
+
+# Maximum number of statements in function / method body.
+max-statements = 50
+
+[tool.pylint.similarities]
+# Minimum lines number of a similarity.
+min-similarity-lines = 6
+
+# Ignore imports when computing similarities.
+ignore-imports = true
